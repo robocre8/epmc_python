@@ -5,33 +5,30 @@ import time
 motorControl = EPMC('/dev/ttyUSB0')
 
 #wait for the EPMC to fully setup
-for i in range(6):
+for i in range(4):
   time.sleep(1.0)
   print(f'configuring controller: {i} sec')
-motorControl.sendTargetVel(0.0, 0.0)
+
+motorControl.clearDataBuffer()
+motorControl.writeSpeed(0.0, 0.0)
 print('configuration complete')
 
-motorControl.setCmdTimeout(3000)
+motorControl.setCmdTimeout(5000)
 timeout = motorControl.getCmdTimeout()
 print("command timeout in ms: ", timeout)
 
-angPosA=0.0
-angPosB=0.0
-angVelA=0.0
-angVelB=0.0
-
-lowTargetVel = -8.00 # in rad/sec
-highTargetVel = 8.00 # in rad/sec
+lowTargetVel = -3.142 # in rad/sec
+highTargetVel = 3.142 # in rad/sec
 
 prevTime = None
-sampleTime = 10.0
+sampleTime = 0.015
 
 ctrlPrevTime = None
 ctrlSampleTime = 5.0
 sendHigh = True
 
 
-motorControl.sendTargetVel(lowTargetVel, lowTargetVel) # targetA, targetB
+motorControl.writeSpeed(lowTargetVel, lowTargetVel) # targetA, targetB
 sendHigh = True
 
 prevTime = time.time()
@@ -39,10 +36,10 @@ ctrlPrevTime = time.time()
 while True:
   if time.time() - ctrlPrevTime > ctrlSampleTime:
     if sendHigh:
-      motorControl.sendTargetVel(highTargetVel, highTargetVel) # targetA, targetB
+      motorControl.writeSpeed(highTargetVel, highTargetVel) # targetA, targetB
       sendHigh = False
     else:
-      motorControl.sendTargetVel(lowTargetVel, lowTargetVel) # targetA, targetB
+      motorControl.writeSpeed(lowTargetVel, lowTargetVel) # targetA, targetB
       sendHigh = True
     
     ctrlPrevTime = time.time()
@@ -51,11 +48,11 @@ while True:
 
   if time.time() - prevTime > sampleTime:
     try:
-      angPosA, angPosB = motorControl.getMotorsPos() # returns angPosA, angPosB
-      angVelA, angVelB = motorControl.getMotorsVel() # returns angVelA, angVelB
-      # print(f"motorA_readings: [{angPosA}, {angVelA}]")
-      # print(f"motorB_readings: [{angPosB}, {angVelB}]")
-      # print("")
+      angPosA, angPosB = motorControl.readPos() # returns angPosA, angPosB
+      angVelA, angVelB = motorControl.readVel() # returns angVelA, angVelB
+      print(f"motorA_readings: [{angPosA}, {angVelA}]")
+      print(f"motorB_readings: [{angPosB}, {angVelB}]")
+      print("")
     except:
       pass
     
