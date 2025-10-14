@@ -51,7 +51,7 @@ class EPMC:
             payload = self.ser.read(4)
             if len(payload) != 4:
                 print("[EPMC SERIAL COMM]: Timeout while reading packet1")
-                return False, [None]
+                return False, [0.0]
 
             # Unpack 4 bytes as little-endian float
             (val,) = struct.unpack('<f', payload)
@@ -59,7 +59,7 @@ class EPMC:
 
         except serial.SerialException as e:
             print(f"[EPMC SERIAL COMM]: Serial error — {e}")
-            return False, [None]
+            return False, [0.0]
         
     def read_packet2(self):
         """
@@ -70,7 +70,7 @@ class EPMC:
             payload = self.ser.read(8)
             if len(payload) != 8:
                 print("[EPMC SERIAL COMM]: Timeout while reading packet2")
-                return False, [None, None]
+                return False, [0.0, 0.0]
 
             # Unpack 4 bytes as little-endian float
             a, b = struct.unpack('<ff', payload)
@@ -78,7 +78,7 @@ class EPMC:
 
         except serial.SerialException as e:
             print(f"[EPMC SERIAL COMM]: Serial error — {e}")
-            return False, [None, None]
+            return False, [0.0, 0.0]
     
     def read_packet4(self):
         """
@@ -89,7 +89,7 @@ class EPMC:
             payload = self.ser.read(16)
             if len(payload) != 16:
                 print("[EPMC SERIAL COMM]: Timeout while reading packet2")
-                return False, [None, None, None, None]
+                return False, [0.0, 0.0, 0.0, 0.0]
 
             # Unpack 4 bytes as little-endian float
             a, b, c, d = struct.unpack('<ffff', payload)
@@ -97,7 +97,7 @@ class EPMC:
 
         except serial.SerialException as e:
             print(f"[EPMC SERIAL COMM]: Serial error — {e}")
-            return False, [None, None, None, None]
+            return False, [0.0, 0.0, 0.0, 0.0]
         
     
     #---------------------------------------------------------------------
