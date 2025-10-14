@@ -153,14 +153,14 @@ class EPMC:
         return success, vel_arr
     
     def setCmdTimeout(self, timeout):
-        success, res = self.write_data1(SET_CMD_TIMEOUT, 0, timeout)
+        success, res = self.write_data1(SET_CMD_TIMEOUT, 100, timeout)
         if success:
             return success, int(res[0])
         else:
             return success, 0
         
     def getCmdTimeout(self):
-        success, res = self.read_data1(GET_CMD_TIMEOUT, 0)
+        success, res = self.read_data1(GET_CMD_TIMEOUT, 100)
         if success:
             return success, int(res[0])
         else:
@@ -181,7 +181,7 @@ class EPMC:
             return success, 0
     
     def clearDataBuffer(self):
-        success, res = self.write_data1(CLEAR_DATA_BUFFER, 0, 0.0)
+        success, res = self.write_data1(CLEAR_DATA_BUFFER, 100, 0.0)
         if success:
             return success, int(res[0])
         else:
