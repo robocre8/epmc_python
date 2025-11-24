@@ -1,8 +1,20 @@
 from epmc import EPMC
 import time
 
+port = '/dev/ttyACM0'
+# port = '/dev/ttyUSB0'
+motorControl = EPMC(port)
 
-motorControl = EPMC('/dev/ttyUSB0')
+# [4 rev/sec, 2 rev/sec, 1 rev/sec, 0.5 rev/sec]
+targetVel = [1.571, 3.142, 6.284, 12.568] 
+vel = targetVel[1]
+v = 0.0
+
+readTime = None
+readTimeInterval = 0.01 # 100Hz
+
+cmdTime = None
+cmdTimeInterval = 5.0
 
 #wait for the EPMC to fully setup
 for i in range(4):
@@ -10,59 +22,46 @@ for i in range(4):
   print(f'configuring controller: {i+1} sec')
 
 motorControl.clearDataBuffer()
-motorControl.writeSpeed(0.0, 0.0)
+motorControl.writeSpeed(v, v)
 print('configuration complete')
 
-motorControl.setCmdTimeout(5000)
+motorControl.setCmdTimeout(10000)
 timeout = motorControl.getCmdTimeout()
 print("command timeout in ms: ", timeout)
 
-angPosA = 0.0
-angPosB = 0.0
-angVelA = 0.0
-angVelB = 0.0
-
-lowTargetVel = -10.00 # in rad/sec
-highTargetVel = 10.00 # in rad/sec
-
-prevTime = None
-sampleTime = 0.015
-
-ctrlPrevTime = None
-ctrlSampleTime = 4.0
 sendHigh = True
 
+readTime = time.time()
+cmdTime = time.time()
 
-motorControl.writeSpeed(lowTargetVel, lowTargetVel) # targetA, targetB
-sendHigh = True
-
-prevTime = time.time()
-ctrlPrevTime = time.time()
 while True:
-  if time.time() - ctrlPrevTime > ctrlSampleTime:
+  if time.time() - cmdTime > cmdTimeInterval:
     if sendHigh:
-      motorControl.writeSpeed(highTargetVel, highTargetVel) # targetA, targetB
+      # print("command high")
+      # motorControl.writeSpeed(vel, vel)
+      v = vel
+      vel = vel*-1
       sendHigh = False
     else:
-      motorControl.writeSpeed(lowTargetVel, lowTargetVel) # targetA, targetB
+      # print("command low")
+      # motorControl.writeSpeed(0.0, 0.0)
+      v = 0.0
       sendHigh = True
     
-    ctrlPrevTime = time.time()
+    
+    cmdTime = time.time()
 
 
 
-  if time.time() - prevTime > sampleTime:
+  if time.time() - readTime > readTimeInterval:
     try:
-      success, motor_data = motorControl.readMotorData()
-      if success:
-        angPosA = round(motor_data[0], 4)
-        angPosB = round(motor_data[1], 4)
-        angVelA = round(motor_data[2], 6)
-        angVelB = round(motor_data[3], 6)
-      print(f"motorA_readings: [{angPosA}, {angVelA}]")
-      print(f"motorB_readings: [{angPosB}, {angVelB}]")
+      motorControl.writeSpeed(v, v)
+      pos0, pos1, v0, v1 = motorControl.readMotorData()
+
+      print(f"motor0_readings: [{pos0}, {v0}]")
+      print(f"motor1_readings: [{pos1}, {v1}]")
       print("")
     except:
       pass
     
-    prevTime = time.time()
+    readTime = time.time()
