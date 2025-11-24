@@ -19,7 +19,7 @@ cmdTimeInterval = 5.0
 #wait for the EPMC to fully setup
 for i in range(4):
   time.sleep(1.0)
-  print(f'configuring controller: {i+1} sec')
+  print(f'waiting for epmc controller: {i+1} sec')
 
 motorControl.clearDataBuffer()
 motorControl.writeSpeed(v, v)
