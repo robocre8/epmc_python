@@ -21,12 +21,12 @@ for i in range(4):
   time.sleep(1.0)
   print(f'waiting for epmc controller: {i+1} sec')
 
-motorControl.clearDataBuffer()
+success = motorControl.clearDataBuffer()
 motorControl.writeSpeed(v, v)
 print('configuration complete')
 
 motorControl.setCmdTimeout(10000)
-timeout = motorControl.getCmdTimeout()
+success, timeout = motorControl.getCmdTimeout()
 print("command timeout in ms: ", timeout)
 
 sendHigh = True
@@ -38,14 +38,14 @@ while True:
   if time.time() - cmdTime > cmdTimeInterval:
     if sendHigh:
       # print("command high")
-      # motorControl.writeSpeed(vel, vel)
       v = vel
+      motorControl.writeSpeed(v, v)
       vel = vel*-1
       sendHigh = False
     else:
       # print("command low")
-      # motorControl.writeSpeed(0.0, 0.0)
       v = 0.0
+      motorControl.writeSpeed(v, v)
       sendHigh = True
     
     
@@ -55,8 +55,8 @@ while True:
 
   if time.time() - readTime > readTimeInterval:
     try:
-      motorControl.writeSpeed(v, v)
-      pos0, pos1, v0, v1 = motorControl.readMotorData()
+      # motorControl.writeSpeed(v, v)
+      success, pos0, pos1, v0, v1 = motorControl.readMotorData()
 
       print(f"motor0_readings: [{pos0}, {v0}]")
       print(f"motor1_readings: [{pos1}, {v1}]")
