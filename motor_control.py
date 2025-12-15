@@ -3,7 +3,7 @@ import time
 
 port = '/dev/ttyACM0'
 # port = '/dev/ttyUSB0'
-motorControl = EPMC(port)
+epmc = EPMC(port)
 
 # [4 rev/sec, 2 rev/sec, 1 rev/sec, 0.5 rev/sec]
 targetVel = [1.571, 3.142, 6.284, 12.568] 
@@ -21,12 +21,12 @@ for i in range(4):
   time.sleep(1.0)
   print(f'waiting for epmc controller: {i+1} sec')
 
-success = motorControl.clearDataBuffer()
-motorControl.writeSpeed(v, v)
+success = epmc.clearDataBuffer()
+epmc.writeSpeed(v, v)
 print('configuration complete')
 
-motorControl.setCmdTimeout(10000)
-success, timeout = motorControl.getCmdTimeout()
+epmc.setCmdTimeout(10000)
+success, timeout = epmc.getCmdTimeout()
 print("command timeout in ms: ", timeout)
 
 sendHigh = True
@@ -39,13 +39,13 @@ while True:
     if sendHigh:
       # print("command high")
       v = vel
-      motorControl.writeSpeed(v, v)
+      epmc.writeSpeed(v, v)
       vel = vel*-1
       sendHigh = False
     else:
       # print("command low")
       v = 0.0
-      motorControl.writeSpeed(v, v)
+      epmc.writeSpeed(v, v)
       sendHigh = True
     
     
@@ -55,8 +55,8 @@ while True:
 
   if time.time() - readTime > readTimeInterval:
     try:
-      # motorControl.writeSpeed(v, v)
-      success, pos0, pos1, v0, v1 = motorControl.readMotorData()
+      # epmc.writeSpeed(v, v)
+      success, pos0, pos1, v0, v1 = epmc.readMotorData()
 
       print(f"motor0_readings: [{pos0}, {v0}]")
       print(f"motor1_readings: [{pos1}, {v1}]")
